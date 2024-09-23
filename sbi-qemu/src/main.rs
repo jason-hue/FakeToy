@@ -1,19 +1,29 @@
+#![feature(panic_info_message)]
 #![no_std]
 #![no_main]
 use core::arch::{asm, global_asm};
 use core::panic::PanicInfo;
 use crate::csr::{insert_field, MSTATUS_MPIE, MSTATUS_MPP, PRV_S};
 use config::FW_JUMP_ADDR;
+use crate::config::logo;
+use crate::pmp::{init_pmp, print_pmp_info};
+
 mod config;
 mod panic_handler;
 mod csr;
 mod pmp;
+mod console;
 global_asm!(include_str!("sbi_boot.S"));
 /*
  * 运行在M模式
  */
 #[no_mangle]
 pub extern "C" fn sbi_main() -> ! {
+    println!("{}",logo);
+    println!("SBI: Initializing...");
+    /* 初始化PMP*/
+    init_pmp();
+    print_pmp_info();
     /* 设置跳转模式为S模式 */
     let mut val = read_csr!("mstatus");
     val = insert_field(val,MSTATUS_MPP,PRV_S);
@@ -27,8 +37,14 @@ pub extern "C" fn sbi_main() -> ! {
     write_csr!("sie", 0);
     /* 关闭S模式的页表转换 */
     write_csr!("satp", 0);
+    println!("SBI: mstatus = 0x{:016x}", read_csr!("mstatus"));
+    println!("SBI: mepc = 0x{:016x}", read_csr!("mepc"));
+    println!("SBI: stvec = 0x{:016x}", read_csr!("stvec"));
+    println!("SBI: satp = 0x{:016x}", read_csr!("satp"));
     unsafe {
+        println!("SBI: Executing mret");
         asm!("mret");
+        println!("SBI: This should not be printed");
         core::hint::unreachable_unchecked();
     }
 }
