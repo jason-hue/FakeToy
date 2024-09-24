@@ -10,7 +10,7 @@ pub const logo: &str = r#"
    /        |    to     |            \
   /    O    | the future|     O       \
  |    /|\   |    of     |    /|\      |
- |    / \   |  finance  |    / \      |
+ |    / \   |  RISC-V  |    / \      |
  |         / \         / \           |
   \       /   \       /   \         /
    \     /     \     /     \       /
@@ -20,3 +20,5 @@ pub const logo: &str = r#"
       __/ \__          ___/ \___
      (       )        (        )
 "#;
+// QEMU-specific MMIO address for system poweroff
+pub const QEMU_VIRT_poweroff: *mut u32 = 0x10000_0000 as *mut u32;

@@ -7,7 +7,6 @@ use crate::csr::{insert_field, MSTATUS_MPIE, MSTATUS_MPP, PRV_S};
 use config::FW_JUMP_ADDR;
 use crate::config::logo;
 use crate::pmp::{init_pmp, print_pmp_info};
-
 mod config;
 mod panic_handler;
 mod csr;
@@ -37,14 +36,14 @@ pub extern "C" fn sbi_main() -> ! {
     write_csr!("sie", 0);
     /* 关闭S模式的页表转换 */
     write_csr!("satp", 0);
-    println!("SBI: mstatus = 0x{:016x}", read_csr!("mstatus"));
-    println!("SBI: mepc = 0x{:016x}", read_csr!("mepc"));
-    println!("SBI: stvec = 0x{:016x}", read_csr!("stvec"));
-    println!("SBI: satp = 0x{:016x}", read_csr!("satp"));
+    println!("[sbi] mstatus = 0x{:016x}", read_csr!("mstatus"));
+    println!("[sbi] mepc = 0x{:016x}", read_csr!("mepc"));
+    println!("[sbi] stvec = 0x{:016x}", read_csr!("stvec"));
+    println!("[sbi] satp = 0x{:016x}", read_csr!("satp"));
     unsafe {
-        println!("SBI: Executing mret");
+        println!("[sbi] Executing mret");
         asm!("mret");
-        println!("SBI: This should not be printed");
+        println!("[sbi] This should not be printed");
         core::hint::unreachable_unchecked();
     }
 }
