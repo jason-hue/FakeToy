@@ -3,8 +3,7 @@
 #![no_main]
 #![feature(asm_const)]
 use core::arch::global_asm;
-use core::panic::PanicInfo;
-use crate::tool::{memcopy, memcopy_test};
+use crate::tool::combined_memory_test;
 
 mod config;
 mod console;
@@ -14,6 +13,6 @@ global_asm!(include_str!("boot.S"));
 #[no_mangle]
 pub extern "C" fn kernel_main() -> ! {
     println!("[kernel]Start executing 0x80200000!");
-    memcopy_test();
+    combined_memory_test();
     loop {}
 }
