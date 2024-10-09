@@ -7,6 +7,8 @@ _start:
 	li t0, 4096
 	add sp, sp, t0
 
+    csrw mscratch,sp
+
 	/* goto C */
 	tail sbi_main
 

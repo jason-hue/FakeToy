@@ -7,18 +7,25 @@ use crate::csr::{insert_field, MSTATUS_MPIE, MSTATUS_MPP, PRV_S};
 use config::FW_JUMP_ADDR;
 use crate::config::logo;
 use crate::pmp::{init_pmp, print_pmp_info};
+use crate::trap::sbi_trap_init;
+use crate::uart::{uart_init, uart_send};
 
 mod config;
 mod panic_handler;
 mod csr;
 mod pmp;
+mod trap;
 mod console;
+mod uart;
 global_asm!(include_str!("sbi_boot.S"));
+global_asm!(include_str!("trap/trap.S"));
 /*
  * 运行在M模式
  */
 #[no_mangle]
 pub extern "C" fn sbi_main() -> ! {
+    uart_init();
+    println!("SBI: UART INIT!");
     println!("{}",logo);
     println!("SBI: Initializing...");
     /* 初始化PMP*/
@@ -41,6 +48,8 @@ pub extern "C" fn sbi_main() -> ! {
     println!("SBI: mepc = 0x{:016x}", read_csr!("mepc"));
     println!("SBI: stvec = 0x{:016x}", read_csr!("stvec"));
     println!("SBI: satp = 0x{:016x}", read_csr!("satp"));
+    sbi_trap_init();
+    println!("SBI: SBI_TRAP_INIT!");
     unsafe {
         println!("SBI: Executing mret");
         asm!("mret");

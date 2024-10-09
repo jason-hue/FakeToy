@@ -1,17 +1,11 @@
 use core::fmt;
 use core::fmt::Write;
-use core::sync::atomic::{AtomicBool, Ordering};
-use uart::{uart_init, uart_send};
+use crate::uart::uart_send_string;
 
-static UART_INITIALIZED: AtomicBool = AtomicBool::new(false);
 struct Stdout;
 impl Write for Stdout {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        if !UART_INITIALIZED.load(Ordering::Acquire) {
-            unsafe { uart_init(); }
-            UART_INITIALIZED.store(true, Ordering::Release);
-        }
-        uart_send(s);
+        uart_send_string(s);
         Ok(())
     }
 }

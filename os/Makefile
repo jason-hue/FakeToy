@@ -1,7 +1,6 @@
 clean:
 	cargo clean
 	cd ../sbi-qemu/ && cargo clean
-	cd ../uart/ && cargo clean
 
 build:
 	cargo build --release

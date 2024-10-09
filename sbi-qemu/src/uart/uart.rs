@@ -2,7 +2,7 @@
 
 use core::ops::RangeInclusive;
 use crate::config::{UART16550_CLOCK, UART_DEFAULT_BAUD};
-use crate::io::{readb, writeb};
+use crate::uart::io::{readb, writeb};
 
 // Base address for UART
 pub const UART: usize = 0x10000000;
@@ -105,9 +105,11 @@ pub unsafe fn write_uart_register(address: usize, value: u8) {
 }
 
 //发送一个字节
-unsafe fn uart_send(c: char){
-    while readb(UART_LSR as *const u8)&UartLsr::EMPTY == 0 {}
-    writeb(c as u8,UART_DAT as *mut u8);
+pub fn uart_send(c: char){
+    unsafe {
+        while readb(UART_LSR as *const u8) & UartLsr::EMPTY == 0 {}
+        writeb(c as u8, UART_DAT as *mut u8);
+    }
 }
 
 //发送字符串
@@ -116,7 +118,7 @@ pub fn uart_send_string(s: &str){
         unsafe { uart_send(c); }
     }
 }
-pub unsafe fn uart_init(){
+pub fn uart_init(){
     let divisor = UART16550_CLOCK / (16*UART_DEFAULT_BAUD);
     unsafe {
         writeb(0, UART_IER as *mut u8); //关闭中断

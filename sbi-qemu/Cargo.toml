@@ -15,5 +15,4 @@ debug = true
 
 [dependencies]
 paste = "1.0.15"
-uart = {path = "../uart",default-features = false}
 log = "0.4.22"
