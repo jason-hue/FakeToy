@@ -63,6 +63,5 @@ _sbi_exception_vector:
     ld a0,4*8(sp)
 
     ld sp,2*8(sp)
-
     mret
 

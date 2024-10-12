@@ -13,3 +13,4 @@ panic = "abort"
 debug = true
 [dependencies]
 log = "0.4.22"
+paste = "1.0.15"

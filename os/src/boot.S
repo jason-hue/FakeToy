@@ -9,7 +9,7 @@ _start:
 	la sp, stacks_start
 	li t0, 4096
 	add sp, sp, t0
-
+	csrw sscratch ,sp
 	/* goto C */
 	tail kernel_main
 

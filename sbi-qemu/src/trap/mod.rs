@@ -2,6 +2,7 @@ use crate::write_csr;
 use crate::asm;
 mod trap_context;
 mod trap_handler;
+pub use crate::trap::trap_handler::delegate_traps;
 extern "C" {
     fn _sbi_exception_vector();
 }

@@ -7,7 +7,7 @@ use crate::csr::{insert_field, MSTATUS_MPIE, MSTATUS_MPP, PRV_S};
 use config::FW_JUMP_ADDR;
 use crate::config::logo;
 use crate::pmp::{init_pmp, print_pmp_info};
-use crate::trap::sbi_trap_init;
+use crate::trap::{delegate_traps, sbi_trap_init};
 use crate::uart::{uart_init, uart_send};
 
 mod config;
@@ -50,6 +50,8 @@ pub extern "C" fn sbi_main() -> ! {
     println!("SBI: satp = 0x{:016x}", read_csr!("satp"));
     sbi_trap_init();
     println!("SBI: SBI_TRAP_INIT!");
+    delegate_traps();
+    println!("SBI: DELEGATE_TRAPS_TO_S_MODE!");
     unsafe {
         println!("SBI: Executing mret");
         asm!("mret");

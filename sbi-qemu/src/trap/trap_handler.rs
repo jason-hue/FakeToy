@@ -1,4 +1,4 @@
-use crate::{print, println, read_csr};
+use crate::{print, println, read_csr, write_csr};
 use core::arch::asm;
 use core::ptr;
 use crate::trap::trap_context::TrapContext;
@@ -28,6 +28,14 @@ pub const SBI_SET_TIMER: usize = 0;
 pub const SBI_CONSOLE_PUTCHAR: usize = 1;
 pub const SBI_CONSOLE_GETCHAR: usize = 2;
 
+pub const IRQ_S_SOFT: usize = 1;
+pub const IRQ_S_TIMER: usize = 5;
+pub const IRQ_S_EXT: usize = 9;
+pub const MIP_SSIP: usize = 1 << IRQ_S_SOFT;
+pub const MIP_STIP: usize = 1 << IRQ_S_TIMER;
+pub const MIP_SEIP: usize = 1 << IRQ_S_EXT;
+
+
 #[no_mangle]
 pub fn sbi_trap_handler(regs: *mut TrapContext) -> isize{
     let trap_context = unsafe { &mut *regs };
@@ -41,6 +49,7 @@ pub fn sbi_trap_handler(regs: *mut TrapContext) -> isize{
         //..........扩展更多具体异常处理函数
         _ => {
             println!("Unhandled trap: {:#x}", mcause);
+            trap_context.mepc += 4;
             ret = -1;
         }
     }
@@ -70,4 +79,22 @@ fn sbi_ecall_handle(syscall_id: usize, trap_context: &mut TrapContext) -> isize 
     }
     trap_context.mepc += 4;
     ret
+}
+pub fn delegate_traps() {
+    let interrupts: usize = MIP_SSIP | MIP_STIP | MIP_SEIP;
+    let exceptions: usize = (1 << CAUSE_MISALIGNED_FETCH) |
+        (1 << CAUSE_FETCH_PAGE_FAULT) |
+        (1 << CAUSE_BREAKPOINT) |
+        (1 << CAUSE_LOAD_PAGE_FAULT) |
+        (1 << CAUSE_STORE_PAGE_FAULT) |
+        (1 << CAUSE_USER_ECALL) |
+        (1 << CAUSE_LOAD_ACCESS) |
+        (1 << CAUSE_STORE_ACCESS) |
+        (1 << CAUSE_FETCH_ACCESS) |
+        (1 << CAUSE_ILLEGAL_INSTRUCTION);
+
+    unsafe {
+        write_csr!("mideleg",interrupts);
+        write_csr!("medeleg",exceptions);
+    }
 }
