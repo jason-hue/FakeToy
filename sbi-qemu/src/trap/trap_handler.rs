@@ -27,6 +27,7 @@ pub const CAUSE_STORE_GUEST_PAGE_FAULT: usize = 0x17;
 pub const SBI_SET_TIMER: usize = 0;
 pub const SBI_CONSOLE_PUTCHAR: usize = 1;
 pub const SBI_CONSOLE_GETCHAR: usize = 2;
+pub const SBI_SHUTDOWN: usize = 8;
 
 pub const IRQ_S_SOFT: usize = 1;
 pub const IRQ_S_TIMER: usize = 5;
@@ -72,6 +73,10 @@ fn sbi_ecall_handle(syscall_id: usize, trap_context: &mut TrapContext) -> isize 
             println!("No imply SBI_CONSOLE_GETCHAR!");
             ret = -1;
         }
+        SBI_SHUTDOWN => {
+            system_shutdown();
+            ret = 0;
+        }
         _ => {
             println!("Unhandled syscall: {:#x}", syscall_id);
             ret = -1;
@@ -97,4 +102,18 @@ pub fn delegate_traps() {
         write_csr!("mideleg",interrupts);
         write_csr!("medeleg",exceptions);
     }
+}
+pub fn system_shutdown(){
+    unsafe {
+    asm!(
+    "li t0, 0x100000",  // Load the address into t0
+    "li t1, 0x55555",   // Load the shutdown command into t1
+    "sw t1, 0(t0)",   // Store the command to the address
+    "1:",             // Local label for the loop
+    "wfi",            // Wait for interrupt (power saving)
+    "j 1b",
+    )
+    }
+
+    unreachable!("System shutdown failed");
 }

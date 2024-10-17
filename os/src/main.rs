@@ -1,10 +1,14 @@
 #![feature(panic_info_message)]
 #![no_std]
 #![no_main]
+#![feature(alloc_error_handler)]
+extern crate alloc;
+
 use core::arch::{asm, global_asm};
 use core::panic::PanicInfo;
 use crate::csr::{read_sepc, read_sstatus};
-use crate::sbi::{putchar, sbi_call};
+use crate::mm::{frame_allocator_alloc_more_test, frame_allocator_test, heap_test};
+use crate::sbi::{putchar, sbi_call, shutdown};
 use crate::trap::trap_init;
 
 mod config;
@@ -13,6 +17,7 @@ mod panic_handler;
 mod csr;
 mod sbi;
 mod trap;
+mod mm;
 global_asm!(include_str!("boot.S"));
 global_asm!(include_str!("trap/trap.S"));
 extern "C"{
@@ -55,12 +60,21 @@ fn print_segment_info(){
 }
 #[no_mangle]
 pub extern "C" fn kernel_main() -> ! {
+    clear_bss();
     trap_init();
+    mm::mm_init();
     println!("Entering kernel_main");
     print_segment_info();
-    loop {
-        println!("System running normally");
-        // 添加一些延迟
-        for _ in 0..1000000 { core::hint::spin_loop(); }
+    heap_test();
+    frame_allocator_alloc_more_test();
+    frame_allocator_test();
+    //trap test
+    unsafe {
+        asm!("mret");
+        asm!("csrrw sp,mscratch,sp")
     }
+    println!("System running normally");
+    println!("Shutdown!");
+    shutdown();
+    unreachable!()
 }

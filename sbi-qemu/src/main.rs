@@ -7,7 +7,7 @@ use crate::csr::{insert_field, MSTATUS_MPIE, MSTATUS_MPP, PRV_S};
 use config::FW_JUMP_ADDR;
 use crate::config::logo;
 use crate::pmp::{init_pmp, print_pmp_info};
-use crate::trap::{delegate_traps, sbi_trap_init};
+use crate::trap::{delegate_traps, sbi_trap_init, system_shutdown};
 use crate::uart::{uart_init, uart_send};
 
 mod config;

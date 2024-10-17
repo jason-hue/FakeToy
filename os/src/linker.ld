@@ -4,6 +4,7 @@ BASE_ADDRESS = 0x80200000;
 SECTIONS
 {
 	. = BASE_ADDRESS;
+	skernel = .;
 	stext = .;
     .text : {
         *(.text.boot)
@@ -35,5 +36,6 @@ SECTIONS
     }
     . = ALIGN(4K);
     ebss = .;
+    ekernel = .;
 }
 
