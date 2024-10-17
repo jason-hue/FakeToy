@@ -9,5 +9,10 @@ extern "C"{
 }
 pub fn trap_init(){
     write_csr!("stvec",do_exception_vectors);
+    extern "C"{
+        fn stacks_end();
+    }
+    let kernel_stack_top = unsafe { stacks_end as usize };
+    write_csr!("sscratch",kernel_stack_top);
     write_csr!("sie",-1);
 }

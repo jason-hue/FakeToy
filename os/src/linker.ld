@@ -19,17 +19,17 @@ SECTIONS
     }
     . = ALIGN(4K);
     erodata = .;
-	sdata = .;
+    start_with_stack = .;
     .data : {
+        *(.data.stack)
+        sdata = .;
         *(.data .data.*)
         *(.sdata .sdata.*)
     }
     . = ALIGN(4K);
     edata = .;
-	sbss_with_stack = .;
+	sbss = .;
     .bss : {
-        *(.bss.stack)
-        sbss = .;
         *(.bss .bss.*)
         *(.sbss .sbss.*)
     }

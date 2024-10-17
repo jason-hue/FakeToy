@@ -129,6 +129,7 @@ static FAULT_INFO: [FaultInfo; 16] = [
 ];
 
 // 异常处理函数
+#[link_section = ".text"]
 #[no_mangle]
 pub fn do_exception(regs: *mut TrapContext,scause: *mut usize) {
     println!("scause:0x{:016x}",scause as usize);

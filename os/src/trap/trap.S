@@ -53,7 +53,7 @@ common_handler:
     # 不需要保存sscratch就直接跳过
     bnez x4, extern_s_mode
 
-    # 将栈底指针保存到sscratch，以便于下次trap找到sp
+    # 将内核栈底指针保存到sscratch，以便于下次trap找到sp
     addi s0,sp,35*8
     csrrw s0,sscratch,s0
 
@@ -96,5 +96,4 @@ ret_from_exception:
     ld x2,2*8(sp)
 
     ld a0,4*8(sp)
-
     sret

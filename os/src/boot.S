@@ -9,12 +9,15 @@ _start:
 	la sp, stacks_start
 	li t0, 4096
 	add sp, sp, t0
-	csrw sscratch ,sp
+	/* Clear sscratch */
+    csrw sscratch, zero
 	/* goto C */
 	tail kernel_main
 
-.section .data
+.section .data.stack
 .align  12
 .global stacks_start
 stacks_start:
 	.skip 4096
+.global stacks_end
+stacks_end:
