@@ -28,6 +28,9 @@ SECTIONS
         *(.sdata .sdata.*)
     }
     . = ALIGN(4K);
+    idmap_pg_dir = .;
+    . += 2*4096;
+    idmap_pg_end = .;
     edata = .;
 	sbss = .;
     .bss : {
