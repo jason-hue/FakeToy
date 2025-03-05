@@ -162,10 +162,10 @@ impl VirtPageNum {
 impl PhysAddr {
     pub fn get_ref<T>(&self) -> &'static T {
         unsafe { (self.0 as *const T).as_ref().unwrap() }
-    }
+    }//返回一个指向物理页号的常量引用
     pub fn get_mut<T>(&self) -> &'static mut T {
         unsafe { (self.0 as *mut T).as_mut().unwrap() }
-    }
+    }//返回一个指向物理页号的可变引用   
 }
 impl PhysPageNum {
     pub fn get_pte_array(&self) -> &'static mut [PageTableEntry] {

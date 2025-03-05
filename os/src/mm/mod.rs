@@ -2,6 +2,7 @@ mod page_table;
 mod heap_allocator;
 mod address;
 mod frame_allocator;
+mod address_space;
 pub use heap_allocator::heap_test;
 pub use frame_allocator::{frame_allocator_alloc_more_test,frame_allocator_test};
 pub fn mm_init(){
