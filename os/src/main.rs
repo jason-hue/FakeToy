@@ -71,6 +71,7 @@ pub extern "C" fn kernel_main() -> ! {
     //trap test
     unsafe {
         asm!("mret");
+        println!("nop nop");//这有一个bug，两条异常指令同时触发会导致bug，暂未解决，所以添加println来避免同时触发两条异常
         asm!("csrrw sp,mscratch,sp")
     }
     println!("System running normally");
