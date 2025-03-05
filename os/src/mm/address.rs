@@ -92,16 +92,16 @@ impl From<VirtPageNum> for usize {
 impl VirtAddr {
     pub fn floor(&self) -> VirtPageNum {
         VirtPageNum(self.0 / PAGE_SIZE)
-    }
+    }//将虚拟地址向下取整为虚拟页号
     pub fn ceil(&self) -> VirtPageNum {
         if self.0 == 0 {
             VirtPageNum(0)
         } else {
             VirtPageNum((self.0 - 1 + PAGE_SIZE) / PAGE_SIZE)
         }
-    }
+    }//将虚拟地址向上取整为虚拟页号
     pub fn page_offset(&self) -> usize {
-        self.0 & (PAGE_SIZE - 1)
+        self.0 & (PAGE_SIZE - 1)//PAGE_SIZE - 1 = 0xFFF = 0b1111_1111_1111（12个1）
     }
     pub fn aligned(&self) -> bool {
         self.page_offset() == 0
@@ -156,7 +156,7 @@ impl VirtPageNum {
             vpn >>= 9;
         }
         idx
-    }
+    }//将虚拟页号分解为4个索引值
 }
 
 impl PhysAddr {
@@ -170,16 +170,16 @@ impl PhysAddr {
 impl PhysPageNum {
     pub fn get_pte_array(&self) -> &'static mut [PageTableEntry] {
         let pa: PhysAddr = (*self).into();
-        unsafe { core::slice::from_raw_parts_mut(pa.0 as *mut PageTableEntry, 512) }
-    }
+        unsafe { core::slice::from_raw_parts_mut(pa.0 as *mut PageTableEntry, 512) }//返回一个指向物理页号的页表项数组的指针
+    }//返回一个指向物理页号的页表项数组的指针
     pub fn get_bytes_array(&self) -> &'static mut [u8] {
         let pa: PhysAddr = (*self).into();
-        unsafe { core::slice::from_raw_parts_mut(pa.0 as *mut u8, 4096) }
-    }
+        unsafe { core::slice::from_raw_parts_mut(pa.0 as *mut u8, 4096) }//返回一个指向物理页号的字节数组的指针
+    }//返回一个指向物理页号的字节数组的指针
     pub fn get_mut<T>(&self) -> &'static mut T {
         let pa: PhysAddr = (*self).into();
-        pa.get_mut()
-    }
+        pa.get_mut()//返回一个指向物理页号的可变引用
+    }//返回一个指向物理页号的可变引用
 }
 pub trait StepByOne {
     fn step(&mut self);
