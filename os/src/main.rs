@@ -63,17 +63,17 @@ pub extern "C" fn kernel_main() -> ! {
     clear_bss();
     trap_init();
     mm::mm_init();
-    println!("Entering kernel_main");
-    print_segment_info();
     heap_test();
     frame_allocator_alloc_more_test();
     frame_allocator_test();
+    println!("Entering kernel_main");
+    print_segment_info();
     //trap test
-    unsafe {
-        asm!("mret");
-        println!("nop nop");//这有一个bug，两条异常指令同时触发会导致bug，暂未解决，所以添加println来避免同时触发两条异常
-        asm!("csrrw sp,mscratch,sp")
-    }
+    // unsafe {
+    //     asm!("mret");
+    //     println!("nop nop");//这有一个bug，两条异常指令同时触发会导致bug，暂未解决，所以添加println来避免同时触发两条异常
+    //     asm!("csrrw sp,mscratch,sp")
+    // }
     println!("System running normally");
     println!("Shutdown!");
     shutdown();

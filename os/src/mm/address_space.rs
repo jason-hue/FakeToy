@@ -75,8 +75,9 @@ impl MapRegion {
         map_type: MapType,
         permission: MapPermission,
     ) -> Self {
-        // 将权限转换为PTEFlags
-        let pte_flags = PTEFlags::from_bits(permission.bits()).unwrap();
+        // 将权限转换为PTEFlags，并确保设置有效位
+        let mut pte_flags = PTEFlags::from_bits(permission.bits()).unwrap();
+        pte_flags |= PTEFlags::V; // 添加有效位
         // 计算虚拟页号范围
         let vpn_range = VPNRange::new(start_va.floor(), end_va.ceil());
         // 创建映射区域
@@ -88,27 +89,27 @@ impl MapRegion {
         }
     }
 
-    pub fn map_one_vpn(&mut self, page_table: &mut PageTable, virt_addr: VirtAddr) {
+    pub fn map_one_vpn(&mut self, page_table: &mut PageTable, vpn: VirtPageNum) {
         let ppn = match self.map_type {
             MapType::Framed => {
                 let frame = frame_alloc().unwrap();
                 let ppn = frame.ppn;
                 // 将新分配的页帧添加到映射中
-                self.data_frames.insert(virt_addr.into(), frame);
+                self.data_frames.insert(vpn.into(), frame);
                 ppn
             }
             MapType::Identity => {
-                let ppn = PhysPageNum::from(virt_addr.0);
-                // 在恒等映射中，物理地址应该等于虚拟地址
-                assert_eq!(ppn.0, virt_addr.0 >> 12, "Invalid identity mapping");
+                let ppn = PhysPageNum::from(vpn.0);
                 ppn
             }
         };
-        // 使用已存储的权限标志的副本
-        page_table.map(virt_addr.into(), ppn, PTEFlags::from_bits(self.permission.bits()).unwrap());
+        // 使用已存储的权限标志的副本，确保有效位被设置
+        let mut flags = PTEFlags::from_bits(self.permission.bits()).unwrap();
+        flags |= PTEFlags::V; // 确保有效位被设置
+        page_table.map(vpn.into(), ppn, flags);
     }
-    pub fn unmap_one_vpn(&mut self, page_table: &mut PageTable, virt_addr: VirtAddr) {
-        page_table.unmap(virt_addr.into());
+    pub fn unmap_one_vpn(&mut self, page_table: &mut PageTable, vpn: VirtPageNum) {
+        page_table.unmap(vpn.into());
     }
     pub fn map_region(&mut self, page_table: &mut PageTable) {
         for region in self.vpn_range {
@@ -125,11 +126,11 @@ impl MapRegion {
 bitflags! {
     #[derive(Clone, Copy)]
     pub struct MapPermission: u8 {
-        const R = 1 << 0;
-        const W = 1 << 1;
-        const X = 1 << 2;
-        const U = 1 << 3;
-        const G = 1 << 4;
+        const R = 1 << 1;
+        const W = 1 << 2;
+        const X = 1 << 3;
+        const U = 1 << 4;
+        const G = 1 << 5;
     }
 }
 
