@@ -11,7 +11,7 @@ pub const MSTATUS_MPIE: u32 = 0x00000080;
 /*
 例子：
 let mstatus = read_crs(mstatus);
-new mstatus = insert_filed(mstatus, MSTATUS_MPP, PRV_S);
+new_mstatus = insert_filed(mstatus, MSTATUS_MPP, PRV_S);
 write_csr(mstatus, new_mstatus);
 这段代码会：
 读取当前的 mstatus 值

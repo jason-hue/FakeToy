@@ -7,7 +7,8 @@ pub const PRV_M: u32 = 3;
 
 pub const SSTATUS_SPP_SHIFT: u32 = 9;
 pub const SSTATUS_SPP: u32 = 1 << SSTATUS_SPP_SHIFT;
-pub const SSTATUS_SPIE: u32 = 0x00000020;
+pub const SSTATUS_SPIE: u32 = 1 << 5;
+pub const SSTATUS_SIE: u32 = 1 << 1;
 ///在 val 中插入 fieldval，插入的位置和大小由 which 决定。
 #[inline]
 pub fn insert_field(val: u32, which: u32, fieldval: u32) -> u32 {

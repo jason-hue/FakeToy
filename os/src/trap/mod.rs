@@ -4,6 +4,8 @@ use crate::csr::read_stvec;
 
 mod trap_context;
 mod trap_handler;
+mod timer;
+pub use timer::timer_init;
 extern "C"{
     fn do_exception_vectors();
 }

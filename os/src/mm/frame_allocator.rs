@@ -75,8 +75,8 @@ impl FrameAllocator for StackFrameAllocator {
             None
         } else {
             self.current += pages;
-            let arr: Vec<usize> = (1..pages + 1).collect();
-            let v = arr.iter().map(|x| (self.current - x).into()).collect();
+            let arr: Vec<usize> = (1..pages + 1).collect();//collect() 方法将迭代器转换为向量
+            let v = arr.iter().map(|x| (self.current - x).into()).collect();//map() 方法将迭代器中的每个元素转换为新的值，x匹配arr中的每个元素
             Some(v)
         }
     }
@@ -85,7 +85,7 @@ impl FrameAllocator for StackFrameAllocator {
         // validity check
         if ppn >= self.current || self.recycled.iter().any(|&v| v == ppn) {
             panic!("Frame ppn={:#x} has not been allocated!", ppn);
-        }
+        }//any() 方法用于检查迭代器中是否存在满足条件的元素
         // recycle
         self.recycled.push(ppn);
     }

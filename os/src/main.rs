@@ -9,7 +9,7 @@ use core::panic::PanicInfo;
 use crate::csr::{read_sepc, read_sstatus};
 use crate::mm::{frame_allocator_alloc_more_test, frame_allocator_test, heap_test};
 use crate::sbi::{putchar, sbi_call, shutdown};
-use crate::trap::trap_init;
+use crate::trap::{timer_init, trap_init};
 
 mod config;
 mod console;
@@ -74,6 +74,7 @@ pub extern "C" fn kernel_main() -> ! {
     //     println!("nop nop");//这有一个bug，两条异常指令同时触发会导致bug，暂未解决，所以添加println来避免同时触发两条异常
     //     asm!("csrrw sp,mscratch,sp")
     // }
+    timer_init();
     println!("System running normally");
     println!("Shutdown!");
     shutdown();

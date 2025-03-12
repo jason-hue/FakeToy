@@ -8,7 +8,7 @@ pub use frame_allocator::{frame_allocator_alloc_more_test,frame_allocator_test};
 pub use address_space::{AddressSpace, MapRegion, MapType, MapPermission};
 pub use address::VirtAddr;
 use core::arch::asm;
-use crate::config::MEMORY_END;
+use crate::config::{MEMORY_END, MMIO};
 use lazy_static::lazy_static;
 use spin::Mutex;
 use crate::println;
@@ -96,7 +96,18 @@ pub fn mm_init(){
     );
     KERNEL_SPACE.lock().insert_region(memory_region);
     println!("Physical memory mapped: {:#x} - {:#x}", 0x8000_0000usize, MEMORY_END);
-    
+
+    for pair in MMIO{
+        let mmio_region = MapRegion::new(
+            (*pair).0.into(),
+            ((*pair).0 + (*pair).1).into(),
+            MapType::Identity,
+            MapPermission::R | MapPermission::W,
+        );
+        KERNEL_SPACE.lock().insert_region(mmio_region);
+        println!("MMIO memory mapped: {:#x} - {:#x}", pair.0, pair.1);
+    }
+
     println!("About to enable paging...");
     
     // 启用分页

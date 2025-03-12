@@ -1,6 +1,7 @@
 use crate::{print, println, read_csr, write_csr};
 use core::arch::asm;
 use core::ptr;
+use crate::trap::timer::{clint_timer_event_start, sbi_timer_process};
 use crate::trap::trap_context::TrapContext;
 use crate::uart::{uart_init, uart_send};
 
@@ -32,42 +33,63 @@ pub const SBI_SHUTDOWN: usize = 8;
 pub const IRQ_S_SOFT: usize = 1;
 pub const IRQ_S_TIMER: usize = 5;
 pub const IRQ_S_EXT: usize = 9;
+pub const IRQ_M_TIMER: usize = 7;
 pub const MIP_SSIP: usize = 1 << IRQ_S_SOFT;
 pub const MIP_STIP: usize = 1 << IRQ_S_TIMER;
 pub const MIP_SEIP: usize = 1 << IRQ_S_EXT;
+pub const MIP_MTIP: usize = 1 << IRQ_M_TIMER;  // M-mode 定时器中断
 
 
 #[no_mangle]
 pub fn sbi_trap_handler(regs: *mut TrapContext) -> isize{
     let trap_context = unsafe { &mut *regs };
     let mcause = read_csr!("mcause") as usize;
-    let syscall_id = trap_context.x[12];//这里不是x[17]哦，x[]存的是x5~x31
+    let sbicall_id = trap_context.x[12];//这里不是x[17]哦，x[]存的是x5~x31
     let mut ret: isize = 0;
-    match mcause {
-        CAUSE_SUPERVISOR_ECALL => {
-            ret = sbi_ecall_handle(syscall_id,trap_context);
+    
+    // 定义中断标志位（最高位）
+    const INTERRUPT_BIT: usize = 1 << (core::mem::size_of::<usize>() * 8 - 1);
+    
+    // 判断是否为中断
+    if mcause & INTERRUPT_BIT != 0 {
+        // 获取中断码
+        let code = mcause & !INTERRUPT_BIT;
+        match code {
+            IRQ_M_TIMER => {
+                sbi_timer_process();
+                ret = 0
+            }
+            _ => {
+                println!("Unhandled interrupt: {:#x}", code);
+                ret = -1;
+            }
         }
-        //..........扩展更多具体异常处理函数
-        _ => {
-            println!("Unhandled trap: {:#x}", mcause);
-            trap_context.mepc += 4;
-            ret = -1;
+    } else {
+        // 异常处理
+        match mcause {
+            CAUSE_SUPERVISOR_ECALL => {
+                ret = sbi_ecall_handle(sbicall_id,trap_context);
+            }
+            _ => {
+                println!("Unhandled exception: {:#x}", mcause);
+                trap_context.mepc += 4;
+                ret = -1;
+            }
         }
     }
     ret
-
 }
 
-fn sbi_ecall_handle(syscall_id: usize, trap_context: &mut TrapContext) -> isize {
+fn sbi_ecall_handle(sbicall_id: usize, trap_context: &mut TrapContext) -> isize {
     let mut ret = 0;
-    match syscall_id {
+    match sbicall_id {
         SBI_CONSOLE_PUTCHAR => {
             uart_send(trap_context.x[5] as u8 as char);
             ret = 0;
         }
         SBI_SET_TIMER => {
-            println!("No imply SBI_SET_TIMER!");
-            ret = -1;
+            clint_timer_event_start(trap_context.x[5]);
+            ret = 0;
         }
         SBI_CONSOLE_GETCHAR => {
             println!("No imply SBI_CONSOLE_GETCHAR!");
@@ -78,7 +100,7 @@ fn sbi_ecall_handle(syscall_id: usize, trap_context: &mut TrapContext) -> isize 
             ret = 0;
         }
         _ => {
-            println!("Unhandled syscall: {:#x}", syscall_id);
+            println!("Unhandled syscall: {:#x}", sbicall_id);
             ret = -1;
         }
     }

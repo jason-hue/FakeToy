@@ -1,8 +1,10 @@
 use core::fmt;
 use crate::println;
+use crate::trap::timer::handle_timer_irq;
 use crate::trap::trap_context::TrapContext;
 const SCAUSE_INT: usize = 1 << 63;
 const SCAUSE_CODE_MASK: usize = 0x7fffffffffffffff;
+const INTERRUPT_CAUSE_TIMER: usize = 5;
 // 定义一个异常处理函数的类型
 type FaultHandler = fn(*mut TrapContext);
 // 定义异常信息结构
@@ -135,6 +137,12 @@ pub fn do_exception(regs: *mut TrapContext,scause: *mut usize) {
     println!("scause:0x{:016x}",scause as usize);
     if is_interrupt_fault(scause as usize){
         //处理中断
+        match scause as usize & SCAUSE_CODE_MASK {
+            INTERRUPT_CAUSE_TIMER => {
+                handle_timer_irq();
+            }
+            _ => {}
+        }
     }else {
         //处理异常
         let exception_code = get_exception_code(scause as usize);

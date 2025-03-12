@@ -24,3 +24,7 @@ pub fn putchar(c: char) -> isize{
 pub fn shutdown(){
     sbi_call(SBI_SHUTDOWN,0,0,0,);
 }
+
+pub fn sbi_set_timer(stime_value: usize) -> isize {
+    sbi_call(SBI_SET_TIMER,stime_value,0,0)
+}
