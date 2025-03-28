@@ -64,7 +64,7 @@ common_handler:
     /*传递两个参数：保存trap上下文的栈sp和scause*/
     mv a0,sp
     mv a1,s4
-    tail do_exception
+    call do_exception
 
 extern_s_mode:
     la ra,ret_from_exception
@@ -72,7 +72,7 @@ extern_s_mode:
     /*传递两个参数：保存trap上下文的栈sp和scause*/
     mv a0,sp
     mv a1,s4
-    tail do_exception
+    call do_exception
 
 ret_from_exception:
     ld s1,32*8(sp)

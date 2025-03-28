@@ -12,7 +12,7 @@ pub const VIRT_CLINT_TIMER_VAL: usize = VIRT_CLINT_ADDR + 0xbff8;
 pub const CLINT_TIMEBASE_FREQ: usize = 10_000_000;
 
 /// 系统时钟频率，1KHz
-pub const HZ: usize = 1_000;
+pub const HZ: usize = 1;
 pub const MMIO: &[(usize, usize)] = &[
     (0x0010_0000, 0x00_2000), // VIRT_TEST/RTC  in virt machine
     (0x2000000, 0x10000),     // core local interrupter (CLINT)

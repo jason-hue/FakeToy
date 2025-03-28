@@ -3,10 +3,13 @@ use core::ptr::write_volatile;
 use crate::config::VIRT_CLINT_TIMER_CMP;
 use crate::csr::insert_field;
 use crate::{read_csr, write_csr};
-use crate::trap::trap_handler::{MIP_MTIP, MIP_STIP};
+use crate::trap::trap_handler::{MIE_MTIE, MIP_MTIP, MIP_STIP};
 
 pub fn clint_timer_event_start(next_event: usize){
     unsafe { writeq(next_event, VIRT_CLINT_TIMER_CMP as *mut usize); }//把下次预设的定时器值写入到MTIMECMP寄存器中
+    let mie = read_csr!("mie");
+    let new_mie = insert_field(mie, MIE_MTIE as u32, 1);
+    write_csr!("mie", new_mie);
 }
 pub fn sbi_timer_process(){
     //清除 MTIP 位

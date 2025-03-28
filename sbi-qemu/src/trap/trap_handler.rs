@@ -38,7 +38,7 @@ pub const MIP_SSIP: usize = 1 << IRQ_S_SOFT;
 pub const MIP_STIP: usize = 1 << IRQ_S_TIMER;
 pub const MIP_SEIP: usize = 1 << IRQ_S_EXT;
 pub const MIP_MTIP: usize = 1 << IRQ_M_TIMER;  // M-mode 定时器中断
-
+pub const MIE_MTIE: usize = 1 << IRQ_M_TIMER;  // M-mode 定时器中断
 
 #[no_mangle]
 pub fn sbi_trap_handler(regs: *mut TrapContext) -> isize{
@@ -49,7 +49,7 @@ pub fn sbi_trap_handler(regs: *mut TrapContext) -> isize{
     
     // 定义中断标志位（最高位）
     const INTERRUPT_BIT: usize = 1 << (core::mem::size_of::<usize>() * 8 - 1);
-    
+
     // 判断是否为中断
     if mcause & INTERRUPT_BIT != 0 {
         // 获取中断码
@@ -72,6 +72,8 @@ pub fn sbi_trap_handler(regs: *mut TrapContext) -> isize{
             }
             _ => {
                 println!("Unhandled exception: {:#x}", mcause);
+                let fault_addr = read_csr!("mepc"); // 读取异常地址
+                println!("Faulting address: {:#x}", fault_addr);
                 trap_context.mepc += 4;
                 ret = -1;
             }
