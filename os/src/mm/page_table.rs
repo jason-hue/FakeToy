@@ -6,7 +6,7 @@ use crate::mm::address::{PhysAddr, PhysPageNum, StepByOne, VirtAddr, VirtPageNum
 use crate::mm::frame_allocator::{frame_alloc, FrameTracker};
 
 bitflags! {
-    #[derive(PartialEq)]
+    #[derive(PartialEq, Clone, Copy, Debug)]
     pub struct PTEFlags: u8 {
         const V = 1 << 0;
         const R = 1 << 1;
@@ -52,7 +52,7 @@ impl PageTableEntry {
     }
 }
 pub struct PageTable {
-    root_ppn: PhysPageNum,//根物理页号
+    pub(crate) root_ppn: PhysPageNum,//根物理页号
     frames: Vec<FrameTracker>,//用途：管理页表占用的物理页帧，使用FrameTracker包装ppn，这样在PageTable销毁时，会自动释放物理页帧
 }
 impl PageTable{
@@ -88,7 +88,7 @@ impl PageTable{
         }
         result
     }//在页表中查找页表项，如果存在则返回，否则创建一个新页表项
-    fn find_pte(&self, vpn: VirtPageNum) -> Option<&mut PageTableEntry> {
+    pub fn find_pte(&self, vpn: VirtPageNum) -> Option<&mut PageTableEntry> {
         let idxs = vpn.indexes();
         let mut ppn = self.root_ppn;
         let mut result: Option<&mut PageTableEntry> = None;
