@@ -544,26 +544,26 @@ impl MapRegion {
                 self.data_frames.insert(vpn.into(), frame);
                 let va: VirtAddr = vpn.into();
                 let pa: PhysAddr = ppn.into();
-                println!("[MAP_PAGE] Framed: VPN={:#010x} -> PPN={:#010x}", va.0, pa.0);
+                // println!("[MAP_PAGE] Framed: VPN={:#010x} -> PPN={:#010x}", va.0, pa.0);
                 ppn
             }
             MapType::Identity => {
                 let ppn = PhysPageNum::from(vpn.0);
                 let va: VirtAddr = vpn.into();
                 let pa: PhysAddr = ppn.into();
-                println!("[MAP_PAGE] Identity: VPN={:#010x} -> PPN={:#010x}", va.0, pa.0);
+                // println!("[MAP_PAGE] Identity: VPN={:#010x} -> PPN={:#010x}", va.0, pa.0);
                 ppn
             }
         };
         // 使用已存储的权限标志的副本，确保有效位被设置
         let mut flags = PTEFlags::from_bits(self.permission.bits()).unwrap();
         flags |= PTEFlags::V; // 确保有效位被设置
-        println!("[MAP_PAGE] Flags: R={} W={} X={} U={} G={}", 
-            (flags & PTEFlags::R) != PTEFlags::empty(),
-            (flags & PTEFlags::W) != PTEFlags::empty(),
-            (flags & PTEFlags::X) != PTEFlags::empty(),
-            (flags & PTEFlags::U) != PTEFlags::empty(),
-            (flags & PTEFlags::G) != PTEFlags::empty());
+        // println!("[MAP_PAGE] Flags: R={} W={} X={} U={} G={}",
+        //     (flags & PTEFlags::R) != PTEFlags::empty(),
+        //     (flags & PTEFlags::W) != PTEFlags::empty(),
+        //     (flags & PTEFlags::X) != PTEFlags::empty(),
+        //     (flags & PTEFlags::U) != PTEFlags::empty(),
+        //     (flags & PTEFlags::G) != PTEFlags::empty());
         page_table.map(vpn.into(), ppn, flags);
     }
     pub fn unmap_one_vpn(&mut self, page_table: &mut PageTable, vpn: VirtPageNum) {
