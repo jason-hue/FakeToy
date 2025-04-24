@@ -38,8 +38,6 @@ pub extern "C" fn sbi_main() -> ! {
     write_csr!("mstatus",val);
     /* 设置M模式的Exception Program Counter，用于mret跳转 */
     write_csr!("mepc",FW_JUMP_ADDR);
-    /* 设置S模式异常向量表入口*/
-    write_csr!("stvec", FW_JUMP_ADDR);
     /* 关闭S模式的中断*/
     write_csr!("sie", 0);
     /* 关闭S模式的页表转换 */
@@ -53,6 +51,7 @@ pub extern "C" fn sbi_main() -> ! {
     delegate_traps();
     println!("SBI: DELEGATE_TRAPS_TO_S_MODE!");
     unsafe {
+        asm!("csrs mstatus, {}", in(reg) 1 << 3); // 设置 mstatus 的第 3 位 (MIE)
         println!("SBI: Executing mret");
         asm!("mret");
         println!("SBI: This should not be printed");

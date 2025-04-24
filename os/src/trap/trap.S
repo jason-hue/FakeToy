@@ -1,3 +1,4 @@
+.section .text.trap
 .altmacro
 .macro save_reg n
     sd x\n,\n*8(sp)

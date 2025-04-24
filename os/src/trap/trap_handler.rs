@@ -133,19 +133,21 @@ static FAULT_INFO: [FaultInfo; 16] = [
 // 异常处理函数
 #[link_section = ".text"]
 #[no_mangle]
-pub fn do_exception(regs: *mut TrapContext,scause: *mut usize) {
-    println!("scause:0x{:016x}",scause as usize);
-    if is_interrupt_fault(scause as usize){
+pub fn do_exception(regs: *mut TrapContext,scause: usize) {
+    println!("scause:0x{:016x}",scause);
+    if is_interrupt_fault(scause){
         //处理中断
-        match scause as usize & SCAUSE_CODE_MASK {
+        match scause & SCAUSE_CODE_MASK {
             INTERRUPT_CAUSE_TIMER => {
+                println!("handle timer irq before");
                 handle_timer_irq();
+                println!("handle timer irq after");
             }
             _ => {}
         }
     }else {
         //处理异常
-        let exception_code = get_exception_code(scause as usize);
+        let exception_code = get_exception_code(scause);
         if exception_code < FAULT_INFO.len() {
             let fault_info = &FAULT_INFO[exception_code];
             println!("Handling exception: {}", fault_info.name);

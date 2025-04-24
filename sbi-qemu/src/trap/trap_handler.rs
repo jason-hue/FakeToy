@@ -56,7 +56,9 @@ pub fn sbi_trap_handler(regs: *mut TrapContext) -> isize{
         let code = mcause & !INTERRUPT_BIT;
         match code {
             IRQ_M_TIMER => {
+                println!("handle sbi_timer_process before");
                 sbi_timer_process();
+                println!("handle sbi_timer_process after");
                 ret = 0
             }
             _ => {
@@ -91,6 +93,7 @@ fn sbi_ecall_handle(sbicall_id: usize, trap_context: &mut TrapContext) -> isize 
         }
         SBI_SET_TIMER => {
             clint_timer_event_start(trap_context.x[5]);
+            println!("timer event start");
             ret = 0;
         }
         SBI_CONSOLE_GETCHAR => {

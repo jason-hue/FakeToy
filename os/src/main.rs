@@ -78,7 +78,7 @@ pub extern "C" fn kernel_main() -> ! {
     println!("System running normally");
     println!("Shutdown!");
     loop {
-        
+
     }
     shutdown();
     unreachable!()

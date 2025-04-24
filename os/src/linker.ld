@@ -10,6 +10,7 @@ SECTIONS
         *(.text.boot)
         . = ALIGN(4K);
         *(.text .text.*)
+        *(.text.trap)
     }
     . = ALIGN(4K);
     etext = .;

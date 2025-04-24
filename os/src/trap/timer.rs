@@ -41,9 +41,9 @@ pub fn timer_init(){
 }
 fn reset_timer() {
     sbi_set_timer(get_cycles() + CLINT_TIMEBASE_FREQ/HZ);
-    let sie = read_csr!("sie");
-    let new_sie = insert_field(sie, SIE_STIE as u32, 1);
-    write_csr!("sie",new_sie);
+    // let sie = read_csr!("sie");
+    // let new_sie = insert_field(sie, SIE_STIE as u32, 1);
+    // write_csr!("sie",new_sie);
 }
 fn get_cycles() -> usize {
     unsafe { readq(VIRT_CLINT_TIMER_VAL as *const usize) }
